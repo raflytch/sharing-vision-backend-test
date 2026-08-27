@@ -25,6 +25,8 @@ A REST API for the Sharing Vision full-stack test. The service is written in Go,
 
 ```text
 .
+├── api/index.go
+├── app/app.go
 ├── cmd/main.go
 ├── db/migrations
 ├── internal

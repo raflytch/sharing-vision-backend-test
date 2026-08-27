@@ -3,25 +3,18 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"log/slog"
+	"io"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 
-	"github.com/gin-gonic/gin"
-
-	"sharing-vision-backend-test/internal/config"
-	"sharing-vision-backend-test/internal/database"
-	articlehandler "sharing-vision-backend-test/internal/handler"
-	"sharing-vision-backend-test/internal/repository"
-	"sharing-vision-backend-test/internal/service"
-	"sharing-vision-backend-test/internal/validator"
+	"sharing-vision-backend-test/app"
 )
 
 var application struct {
 	sync.Once
 	router  http.Handler
+	db      io.Closer
 	initErr error
 }
 
@@ -46,26 +39,14 @@ func Handler(response http.ResponseWriter, request *http.Request) {
 }
 
 func initialize() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	cfg := config.Load()
-
-	connectionContext, cancel := context.WithTimeout(context.Background(), cfg.QueryTimeout)
-	defer cancel()
-
-	db, err := database.OpenMySQL(connectionContext, cfg)
+	logger := app.NewLogger()
+	router, db, err := app.NewHandler(context.Background(), logger)
 	if err != nil {
 		application.initErr = err
 		return
 	}
-
-	articleRepository := repository.NewMySQLArticleRepository(db, cfg.QueryTimeout)
-	articleService := service.NewArticleService(articleRepository, validator.NewArticleValidator())
-	articleHandler := articlehandler.NewArticleHandler(articleService, logger)
-
-	router := gin.New()
-	router.Use(gin.Logger(), gin.Recovery())
-	articleHandler.RegisterRoutes(router)
 	application.router = router
+	application.db = db
 }
 
 func writeInitializationError(response http.ResponseWriter) {
