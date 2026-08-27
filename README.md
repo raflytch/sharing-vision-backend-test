@@ -132,7 +132,7 @@ The API listens on `http://localhost:8080` by default. The application verifies 
 
 ## Deploy to Vercel
 
-This repository includes `api/index.go` as the Vercel serverless entrypoint and `vercel.json` to rewrite `/article/...` requests to it. The local Air workflow and the Vercel serverless workflow use the same handler, service, repository, and validation layers.
+This repository includes `api/index.go` as the Vercel serverless entrypoint. `vercel.json` rewrites every request to `/api/index.go`, which is the reliable routing pattern for Vercel Go Functions while preserving the original `/article/...` path. The local Air workflow and the Vercel serverless workflow use the same handler, service, repository, and validation layers.
 
 Do not commit `.env` or database credentials. Configure these variables in **Vercel Project Settings > Environment Variables** for the environments you deploy to:
 
@@ -155,11 +155,14 @@ vercel
 vercel --prod
 ```
 
-Then test the deployed API using the deployment URL:
+Then test the deployed API using the deployment URL. Do not use literal `:limit` or `:offset`; replace them with numbers:
 
 ```bash
+curl https://<your-project>.vercel.app/
 curl https://<your-project>.vercel.app/article/10/0
 ```
+
+The root endpoint should return the service health JSON, while `/article/10/0` returns the paginated article list.
 
 The database must allow inbound connections from Vercel. If the function returns `500` with `service initialization failed`, inspect the Vercel Function logs and verify the four database variables, port, database permissions, and remote firewall/allowlist.
 

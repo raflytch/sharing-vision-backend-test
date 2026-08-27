@@ -1,16 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/api"
-    },
-    {
-      "source": "/article",
-      "destination": "/api/article"
-    },
-    {
-      "source": "/article/:path*",
-      "destination": "/api/article/:path*"
+      "source": "/(.*)",
+      "destination": "/api/index.go"
     }
   ]
 }
