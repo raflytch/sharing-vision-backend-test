@@ -90,7 +90,7 @@ Migration versions are tracked by `golang-migrate`. The SQL also uses `IF NOT EX
 
 ## Configuration
 
-The defaults work without an `.env` loader. Set environment variables in your shell when different values are needed:
+The application loads `.env` automatically when the file exists. Environment variables already exported by the shell take precedence, so production deployments can inject configuration without a `.env` file:
 
 | Variable | Default |
 |---|---|
@@ -102,7 +102,7 @@ The defaults work without an `.env` loader. Set environment variables in your sh
 | `DB_MAX_OPEN_CONNS` | `25` |
 | `DB_MAX_IDLE_CONNS` | `25` |
 
-`.env.example` is provided as a reference. Go does not read it automatically, which avoids adding a runtime dependency only for local configuration.
+`.env.example` is provided as a reference. Keep real credentials in `.env` locally; `.env` is ignored by Git. For the remote database, set `DB_HOST`, `DB_USER`, `DB_PASSWORD`, and `DB_NAME` in `.env` before starting Air.
 
 ## Run the service for development
 

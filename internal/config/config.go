@@ -4,6 +4,8 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -27,8 +29,16 @@ type Config struct {
 	ShutdownTimeout   time.Duration
 }
 
-// Load reads configuration from environment variables and applies local defaults.
+// Load reads .env, environment variables, and applies local defaults.
 func Load() Config {
+	// Support running from the project root, cmd/, or an internal package.
+	// Missing files are ignored so deployed environments can inject variables.
+	for _, filename := range []string{".env", "../.env", "../../.env"} {
+		if err := godotenv.Load(filename); err == nil {
+			break
+		}
+	}
+
 	return Config{
 		ServerAddress:     getEnv("SERVER_ADDRESS", defaultServerAddress),
 		DBHost:            getEnv("DB_HOST", defaultDBHost),
