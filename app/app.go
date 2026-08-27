@@ -36,6 +36,12 @@ func NewHandler(ctx context.Context, logger *slog.Logger) (http.Handler, *sql.DB
 
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
+	router.GET("/", func(context *gin.Context) {
+		context.JSON(http.StatusOK, gin.H{
+			"service": "sharing-vision-article-api",
+			"status":  "ok",
+		})
+	})
 	articleHandler.RegisterRoutes(router)
 	return router, db, nil
 }
