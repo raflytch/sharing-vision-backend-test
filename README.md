@@ -128,6 +128,39 @@ Development uses Air through `.air.toml`; run `air` instead of `go run`. Air reb
 
 The API listens on `http://localhost:8080` by default. The application verifies the database connection during startup and exits with a clear error if MySQL or the database is unavailable.
 
+## Deploy to Vercel
+
+This repository includes `api/index.go` as the Vercel serverless entrypoint and `vercel.json` to rewrite `/article/...` requests to it. The local Air workflow and the Vercel serverless workflow use the same handler, service, repository, and validation layers.
+
+Do not commit `.env` or database credentials. Configure these variables in **Vercel Project Settings > Environment Variables** for the environments you deploy to:
+
+```text
+DB_HOST=mysql-dbas-jkt-001.sumobase.my.id:63306
+DB_USER=<your-database-user>
+DB_PASSWORD=<your-database-password>
+DB_NAME=db1de14c7427636859
+DB_MAX_OPEN_CONNS=5
+DB_MAX_IDLE_CONNS=5
+```
+
+`DB_HOST` must include the remote MySQL port. After adding or changing variables, create a new deployment because Vercel injects environment variables at deployment/runtime startup.
+
+Deploy with the Vercel CLI from the project root:
+
+```bash
+npm i -g vercel
+vercel
+vercel --prod
+```
+
+Then test the deployed API using the deployment URL:
+
+```bash
+curl https://<your-project>.vercel.app/article/10/0
+```
+
+The database must allow inbound connections from Vercel. If the function returns `500` with `service initialization failed`, inspect the Vercel Function logs and verify the four database variables, port, database permissions, and remote firewall/allowlist.
+
 ## API endpoints
 
 | Method | Endpoint | Description |
